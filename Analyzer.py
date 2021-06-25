@@ -43,3 +43,14 @@ class Analyzer:
                 return vaccines_per_area.to_json()
         else:
             return vaccines_per_area.to_json()
+
+    def get_n_dosi_per_fornitore(self, save_file: bool = False, file_format: str = 'json'):
+        n_dosi_per_fornitore = self.df.groupby('fornitore').agg({'numero_dosi:sum'}).sort_values("numero_dosi",
+                                                                                                 ascending=False)
+
+
+    def get_data_media_cons_per_area(self, save_file: bool = False, file_format: str = 'json'):
+        data_consegna_media = self.df.groupby('area').groupby('fornitore').agg({'numero_dosi:sum'}).agg({'data_consegna:mean'}).sort_values("numero_dosi",
+                                                                                              ascending=False)
+
+
