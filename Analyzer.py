@@ -50,7 +50,7 @@ class Analyzer:
 
 
     def get_data_media_cons_per_area(self, save_file: bool = False, file_format: str = 'json'):
-        data_consegna_media = self.df.groupby('area','fornitore').agg({'numero_dosi:sum'}).agg({'data_consegna:mean'}).sort_values("numero_dosi",
+        data_consegna_media = self.df.groupby('area','fornitore').agg({'numero_dosi:sum','data_consegna:mean'}).sort_values("numero_dosi",
                                                                                               ascending=False)
 
 
