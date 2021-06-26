@@ -8,8 +8,8 @@ class Analyzer:
         self.df = pd.read_csv(path_to_csv)
         return
 
-    # TODO: fare un check sul perché i file json vengono salvati con nomi sbagliati quando non si specifica il formato
     def save_df_as_file(self, data_frame: pd.DataFrame, file_name: str, file_format: str = 'json'):
+        print("save file method")
         file_path = file_name + '.' + file_format
         file = open(file_path, "w")
 
@@ -25,32 +25,57 @@ class Analyzer:
 
         file.close()
 
+    def get_df_as_format(self, df: pd.DataFrame, df_format: str = 'json'):
+        if df_format in self.__supported_formats__:
+            if df_format == 'txt':
+                return df.to_string()
+            elif df_format == 'csv':
+                return df.to_csv()
+            elif df_format == 'json':
+                return df.to_json()
+        else:
+            return df.to_json()
+
     def get_vaccines_per_area(self, save_file: bool = False, file_format: str = 'json'):
         vaccines_per_area = self.df.rename(columns={'nome_area': 'Area'})
         vaccines_per_area = vaccines_per_area.groupby('Area').agg({'numero_dosi': 'sum'}).sort_values("numero_dosi",
                                                                                                       ascending=False)
         vaccines_per_area = vaccines_per_area.rename(columns={'numero_dosi': 'Dosi Totali'})
 
-        if save_file:
+        if save_file is True:
+            print("vaccines per area method: save file = " + str(save_file))
             self.save_df_as_file(vaccines_per_area, 'vaccines_per_area', file_format)
 
-        if file_format in self.__supported_formats__:
-            if file_format == 'txt':
-                return vaccines_per_area.to_string()
-            elif file_format == 'csv':
-                return vaccines_per_area.to_csv()
-            elif file_format == 'json':
-                return vaccines_per_area.to_json()
-        else:
-            return vaccines_per_area.to_json()
+        return self.get_df_as_format(vaccines_per_area, file_format)
 
     def get_n_dosi_per_fornitore(self, save_file: bool = False, file_format: str = 'json'):
-        n_dosi_per_fornitore = self.df.groupby('fornitore').agg({'numero_dosi:sum'}).sort_values("numero_dosi",
+        n_dosi_per_fornitore = self.df.groupby('fornitore').agg({'numero_dosi': 'sum'}).sort_values("numero_dosi",
                                                                                                  ascending=False)
+        if save_file is True:
+            self.save_df_as_file(n_dosi_per_fornitore, 'dosi_per_fornitore', file_format)
 
+        return self.get_df_as_format(n_dosi_per_fornitore, file_format)
 
-    def get_data_media_cons_per_area(self, save_file: bool = False, file_format: str = 'json'):
-        data_consegna_media = self.df.groupby('area','fornitore').agg({'numero_dosi:sum','data_consegna:mean'}).sort_values("numero_dosi",
-                                                                                              ascending=False)
+    # def get_data_media_cons_per_area(self, save_file: bool = False, file_format: str = 'json'):
+    #     data_consegna_media = self.df.groupby(['area', 'fornitore']).agg({'numero_dosi': 'sum',
+    #                                                                    'data_consegna': 'mean'})
+    #                                                                    .sort_values("numero_dosi", ascending=False)
+    #     if save_file is True:
+    #         self.save_df_as_file(data_consegna_media, 'data_consegna_media_per_area', file_format)
+    #
+    #     return self.get_df_as_format(data_consegna_media, file_format)
+
+    def get_vaccini_per_mese(self, save_file: bool = False, file_format: str = 'json'):
+        new_df = self.df
+        new_df['Anno'] = pd.DatetimeIndex(new_df['data_consegna']).year
+        new_df['Mese'] = pd.DatetimeIndex(new_df['data_consegna']).month
+        new_df = new_df.groupby(by=['Mese', 'Anno']).agg({'numero_dosi': 'sum'}).sort_values(["Anno", "Mese"])
+        new_df = new_df.rename(columns={'numero_dosi': 'Dosi Totali'})
+
+        if save_file is True:
+            self.save_df_as_file(new_df, 'dosi_per_mese', file_format)
+
+        return self.get_df_as_format(new_df, file_format)
+
 
 
