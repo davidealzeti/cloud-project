@@ -1,15 +1,29 @@
 import pandas as pd
+import requests
 
 
 class Analyzer:
     __supported_formats__ = ['txt', 'csv', 'json']
+    __file_url__ = 'https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/consegne-vaccini-latest.csv'
 
-    def __init__(self, path_to_csv: str = "data/consegne-vaccini-latest.csv"):
-        self.df = pd.read_csv(path_to_csv)
+    def __init__(self, path_to_csv: str = "data/consegne-vaccini-latest.csv", get_file_from_web: bool = False):
+        if get_file_from_web is False:
+            self.df = pd.read_csv(path_to_csv)
+        else:
+            try:
+                response = requests.get(Analyzer.__file_url__).text
+
+                file = open('data/vax_file_web.txt', "w")
+                file.write(response)
+                file.close()
+
+                self.df = pd.read_csv('data/vax_file_web.txt')
+            except Exception as e:
+                print(e)
+                self.df = pd.read_csv(path_to_csv)
         return
 
     def save_df_as_file(self, data_frame: pd.DataFrame, file_name: str, file_format: str = 'json'):
-        print("save file method")
         file_path = file_name + '.' + file_format
         file = open(file_path, "w")
 
