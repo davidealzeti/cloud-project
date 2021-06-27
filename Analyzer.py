@@ -7,7 +7,8 @@ class Analyzer:
     __file_url__ = 'https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/consegne-vaccini-latest.csv'
 
     def __init__(self, path_to_csv: str = "data/consegne-vaccini-latest.csv", get_file_from_web: bool = False):
-        if get_file_from_web is False:
+        control = True if str(get_file_from_web) == 'True' else False
+        if not control:
             self.df = pd.read_csv(path_to_csv)
         else:
             try:
@@ -21,10 +22,28 @@ class Analyzer:
             except Exception as e:
                 print(e)
                 self.df = pd.read_csv(path_to_csv)
-        return
+
+    def make_analysis(self, analysis_id: int, save_file: bool, file_format: str):
+        control = True if str(save_file) == 'True' else False
+
+        try:
+            id_control = int(analysis_id)
+        except Exception as e:
+            id_control = 0
+
+        if id_control == 0:
+            return self.get_vaccines_per_area(save_file=control, file_format=file_format)
+        elif id_control == 1:
+            return self.get_n_dosi_per_fornitore(save_file=control, file_format=file_format)
+        elif id_control == 2:
+            return self.get_vaccini_per_mese(save_file=control, file_format=file_format)
+        elif id_control == 3:
+            return self.get_percentuale_dosi_per_area(save_file=control, file_format=file_format)
+        else:
+            return self.get_vaccines_per_area(save_file=control, file_format=file_format)
 
     def save_df_as_file(self, data_frame: pd.DataFrame, file_name: str, file_format: str = 'json'):
-        file_path = file_name + '.' + file_format
+        file_path = 'saved_files/' + file_name + '.' + file_format
         file = open(file_path, "w")
 
         if file_format in self.__supported_formats__:
@@ -69,15 +88,6 @@ class Analyzer:
             self.save_df_as_file(n_dosi_per_fornitore, 'dosi_per_fornitore', file_format)
 
         return self.get_df_as_format(n_dosi_per_fornitore, file_format)
-
-    # def get_data_media_cons_per_area(self, save_file: bool = False, file_format: str = 'json'):
-    #     data_consegna_media = self.df.groupby(['area', 'fornitore']).agg({'numero_dosi': 'sum',
-    #                                                                    'data_consegna': 'mean'})
-    #                                                                    .sort_values("numero_dosi", ascending=False)
-    #     if save_file is True:
-    #         self.save_df_as_file(data_consegna_media, 'data_consegna_media_per_area', file_format)
-    #
-    #     return self.get_df_as_format(data_consegna_media, file_format)
 
     def get_vaccini_per_mese(self, save_file: bool = False, file_format: str = 'json'):
         new_df = self.df

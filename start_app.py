@@ -3,9 +3,5 @@ import os
 
 
 if __name__ == '__main__':
-    analyzer = Analyzer.Analyzer(get_file_from_web=os.getenv("READ_FROM_WEB", False))
-    print(analyzer.get_vaccines_per_area(os.getenv("SAVE_FILE", False), os.getenv("FILE_FORMAT", "json")))
-    print(analyzer.get_n_dosi_per_fornitore(save_file=True))
-    print(analyzer.get_vaccini_per_mese(save_file=True, file_format='csv'))
-    print(analyzer.get_percentuale_dosi_per_area(save_file=True, file_format='txt'))
-
+    analyzer = Analyzer.Analyzer(get_file_from_web=os.getenv("GET_FILE_FROM_GITHUB", False))
+    print(analyzer.make_analysis(os.getenv("SELECTED_ANALYSIS", 0), os.getenv("SAVE_FILE", False), os.getenv("FILE_FORMAT", 'json')))
