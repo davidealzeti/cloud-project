@@ -91,5 +91,26 @@ class Analyzer:
 
         return self.get_df_as_format(new_df, file_format)
 
+    def get_percentuale_dosi_per_area(self, save_file: bool = False, file_format: str = 'json'):
+        dosi_per_area = self.df.groupby('nome_area').agg({'numero_dosi': 'sum'}).sort_values(
+            ['numero_dosi'], ascending=False)
+
+        total_vaccines = dosi_per_area.agg({'numero_dosi': 'sum'})
+        total_vaccines = total_vaccines['numero_dosi']
+
+        dosi_per_area.reset_index(inplace=True)
+        dosi_per_area['percentuale_dosi_ricevute'] = dosi_per_area['numero_dosi'].div(total_vaccines).mul(100).round(2).astype(str) + '%'
+
+        dosi_per_area.rename(columns={"nome_area": "Area", "numero_dosi": "Dosi Totali", 'percentuale_dosi_ricevute': 'Percentuale dosi ricevute'}, inplace=True)
+        final_df = {'Area': 'Totale', 'Dosi Totali': total_vaccines, 'Percentuale dosi ricevute': '100%'}
+
+        dosi_per_area_final = dosi_per_area.append(final_df, ignore_index=True)
+
+        if save_file is True:
+            self.save_df_as_file(dosi_per_area_final, 'dosi_per_mese', file_format)
+
+        return self.get_df_as_format(dosi_per_area_final, file_format)
+
+
 
 
