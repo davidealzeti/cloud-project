@@ -79,4 +79,4 @@ Le fasi di development, staging e production sono state mantenute il più possib
 I servizi sono stati trattati come risorse statiche
 
 
-![Snippet](snippet.png "File di analisi")
+![Immagine](https://github.com/davidealzeti/cloud-project/blob/test/code.png)
